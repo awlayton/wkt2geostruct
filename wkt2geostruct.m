@@ -40,7 +40,7 @@ points = {shapes.points};
 points = reshape(points, size(shapes));
 % points = strrep(regexprep(points, ', *', ';'), ');(', '; NaN NaN;');
 points = regexprep(points, ', *', ';');
-points = regexp(points, ');(', 'split');
+points = regexp(points, '\);\(', 'split');
 
 % Set coordinate system
 if geocoords

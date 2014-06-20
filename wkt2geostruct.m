@@ -13,7 +13,13 @@ function [geostruct] = wkt2geostruct(wkts, geocoords)
 %	---------------------
 %	WKT2GEOSTRUCT only supports a subset of the WKT format.
 %	Only 2 dimensional geometries without a linear reference are supported.
-%	'Point', 'LineString', 'Polygon', and 'MultiPoint' types are supported.
+%	The supported types are:
+%	 * Point
+%	 * LineString
+%	 * Polygon
+%	 * MultiPoint
+%	 * MultiLineString
+%	 * MultiPolygon
 %
 % SEE ALSO GEOSHOW
 
@@ -38,9 +44,8 @@ end
 % Then separate groups of points by NaNs
 points = {shapes.points};
 points = reshape(points, size(shapes));
-% points = strrep(regexprep(points, ', *', ';'), ');(', '; NaN NaN;');
 points = regexprep(points, ', *', ';');
-points = regexp(points, '\);\(', 'split');
+points = regexp(points, '\)+;\(+', 'split');
 
 % Set coordinate system
 if geocoords
@@ -68,16 +73,21 @@ parfor I = 1:numel(shapes)
 	geostruct(I).(cf2) = nums(:, 2);
 
 	% MATLAB is very picky about the capitalization of Geometry
-	s = 1;
 	geostruct(I).Geometry = lower(shapes(I).geometry);
 	geostruct(I).Geometry(1) = upper(geostruct(I).Geometry(1));
+	% Multipoint => MultiPoint
+	% Multilinestring => Linestring
+	% Multipolygon => Polygon
 	if geostruct(I).Geometry(1) == 'M'
 		geostruct(I).Geometry(6) = upper(geostruct(I).Geometry(6));
-		s = s + 5;
+		if geostruct(I).Geometry(8) ~= 'i' % MultiPoint
+			geostruct(I).Geometry = geostruct(I).Geometry(6:end);
+		end
 	end
 	% Remove word string after line
-	if geostruct(I).Geometry(s) == 'L'
-		geostruct(I).Geometry = geostruct(I).Geometry(1:s+3);
+	% Linestring => Line
+	if geostruct(I).Geometry(1) == 'L'
+		geostruct(I).Geometry = geostruct(I).Geometry(1:4);
 	end
 
 	% Calculate bounding box

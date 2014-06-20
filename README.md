@@ -16,4 +16,6 @@ The supported geometry types are:
 * LineString
 * Polygon
 * MultiPoint
+* MultiLineString
+* MultiPolygon
 

@@ -1,5 +1,5 @@
-function [geostruct] = wkt2geostruct(wkts, geocoords)
-% WKT2GEOSTRUCT convert Well-known text (WKT) string(s) to geostructs
+function [ geostructs ] = wkt2geostruct(wkts, geocoords)
+% WKT2GEOSTRUCT convert Well-known text (WKT) string(s) to geostruct(s)
 %	S = WKT2GEOSTRUCT(WKTS) returns a geostruct array S,
 %	of the same dimensions as WKTS. WKTS may be a single string,
 %	or it may be a cell array of strings.
@@ -58,7 +58,7 @@ end
 
 % Initialize loop output
 c = cell(size(shapes));
-geostruct = struct('Geometry', c, cf1, c, cf2, c, 'BoundingBox', c);
+geostructs = struct('Geometry', c, cf1, c, cf2, c, 'BoundingBox', c);
 clear c;
 % Loop through all the WKTs
 parfor I = 1:numel(shapes)
@@ -68,32 +68,34 @@ parfor I = 1:numel(shapes)
 			'UniformOutput', false);
 	% Put nums into matrix form [Lon, Lat]
 	nums = vertcat(nums{:});
+	% Remove trailing NaN's
+	nums = nums(1:end-1,:);
 	% Put them into the struct
-	geostruct(I).(cf1) = nums(:, 1);
-	geostruct(I).(cf2) = nums(:, 2);
+	geostructs(I).(cf1) = nums(:, 1);
+	geostructs(I).(cf2) = nums(:, 2);
 
 	% MATLAB is very picky about the capitalization of Geometry
-	geostruct(I).Geometry = lower(shapes(I).geometry);
-	geostruct(I).Geometry(1) = upper(geostruct(I).Geometry(1));
+	geostructs(I).Geometry = lower(shapes(I).geometry);
+	geostructs(I).Geometry(1) = upper(geostructs(I).Geometry(1));
 	% Multipoint => MultiPoint
 	% Multilinestring => Linestring
 	% Multipolygon => Polygon
-	if geostruct(I).Geometry(1) == 'M'
-		geostruct(I).Geometry(6) = upper(geostruct(I).Geometry(6));
-		if geostruct(I).Geometry(8) ~= 'i' % MultiPoint
-			geostruct(I).Geometry = geostruct(I).Geometry(6:end);
+	if geostructs(I).Geometry(1) == 'M'
+		geostructs(I).Geometry(6) = upper(geostructs(I).Geometry(6));
+		if geostructs(I).Geometry(8) ~= 'i' % MultiPoint
+			geostructs(I).Geometry = geostructs(I).Geometry(6:end);
 		end
 	end
 	% Remove word string after line
 	% Linestring => Line
-	if geostruct(I).Geometry(1) == 'L'
-		geostruct(I).Geometry = geostruct(I).Geometry(1:4);
+	if geostructs(I).Geometry(1) == 'L'
+		geostructs(I).Geometry = geostructs(I).Geometry(1:4);
 	end
 
 	% Calculate bounding box
-	geostruct(I).BoundingBox = ...
-			[min(geostruct(I).(cf1)) min(geostruct(I).(cf2)); ...
-			max(geostruct(I).(cf1)) max(geostruct(I).(cf2))];
+	geostructs(I).BoundingBox = ...
+			[min(geostructs(I).(cf1)) min(geostructs(I).(cf2)); ...
+			max(geostructs(I).(cf1)) max(geostructs(I).(cf2))];
 end
 
 end

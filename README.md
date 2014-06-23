@@ -3,6 +3,10 @@ wkt2geostruct
 *wkt2geostruct* converts geometries in the [well-known text (WKT)][wkt] markup
 language to geostructs (or mapstructs). The structs it creates are the type
 used/created by functions from the Mapping Toolbox.
+
+*geostruct2wkt* as the name would suggest, does the inverse of *wkt2geostruct*.
+It generates WKT representations of geostructs (or mapstructs).
+
 [wkt]: http://en.wikipedia.org/wiki/Well-known_text "well-known text"
 
 Supported shape types
@@ -17,5 +21,5 @@ The supported geometry types are:
 * Polygon
 * MultiPoint
 * MultiLineString
-* MultiPolygon
+* MultiPolygon (not supported by *geostruct2wkt* atm)
 

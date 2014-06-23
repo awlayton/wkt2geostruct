@@ -21,7 +21,7 @@ function [ geostructs ] = wkt2geostruct(wkts, geocoords)
 %	 * MultiLineString
 %	 * MultiPolygon
 %
-% SEE ALSO GEOSHOW
+% SEE ALSO GEOSHOW, GEOSTRUCT2WKT
 
 % Alex Layton 10/30/2013
 % alex@layton.in

@@ -63,9 +63,13 @@ clear c;
 % Loop through all the WKTs
 parfor I = 1:numel(shapes)
 	% Make Lat and Lon into numbers
-	% Use flipdim to change CW to CCW and vise versa
-	nums = cellfun(@(c) [flipdim(str2num(c), 1); NaN NaN], points{I}, ...
+	nums = cellfun(@(c) [str2num(c); NaN NaN], points{I}, ...
 			'UniformOutput', false);
+	% MATLAB wants CW polygons
+	if mean(cellfun(@(c) ispolycw(c(:, 1), c(:, 2)), nums)) < 0.5
+		% Change CW to CCW and vise versa
+		nums = cellfun(@(c) [c(end-1:-1:1, :); c(end, :)], nums);
+	end
 	% Put nums into matrix form [Lon, Lat]
 	nums = vertcat(nums{:});
 	% Remove trailing NaN's

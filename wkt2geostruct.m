@@ -21,7 +21,7 @@ function [ geostructs ] = wkt2geostruct(wkts, geocoords)
 %	 * MultiLineString
 %	 * MultiPolygon
 %
-% SEE ALSO GEOSHOW, GEOSTRUCT2WKT
+% See also GEOSHOW, GEOSTRUCT2WKT
 
 % Alex Layton 10/30/2013
 % alex@layton.in
@@ -61,14 +61,15 @@ c = cell(size(shapes));
 geostructs = struct('Geometry', c, cf1, c, cf2, c, 'BoundingBox', c);
 clear c;
 % Loop through all the WKTs
-parfor I = 1:numel(shapes)
+for I = 1:numel(shapes)
 	% Make Lat and Lon into numbers
 	nums = cellfun(@(c) [str2num(c); NaN NaN], points{I}, ...
 			'UniformOutput', false);
 	% MATLAB wants CW polygons
-	if mean(cellfun(@(c) ispolycw(c(:, 1), c(:, 2)), nums)) < 0.5
+	if sum(cellfun(@(c) ispolycw(c(:, 1), c(:, 2)), nums)) > 1
 		% Change CW to CCW and vise versa
-		nums = cellfun(@(c) [c(end-1:-1:1, :); c(end, :)], nums);
+		nums = cellfun(@(c) [c(end-1:-1:1, :); c(end, :)], nums, ...
+			'UniformOutput', false);
 	end
 	% Put nums into matrix form [Lon, Lat]
 	nums = vertcat(nums{:});
